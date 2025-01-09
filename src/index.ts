@@ -88,53 +88,27 @@ export class ServerError extends CustomError {
   }
 }
 
-// export const globalErrorHandler = async (
-//   err: any,
-//   _req: Request,
-//   res: Response,
-//   _next: NextFunction
-// ) => {
-//   try {
-//     if (err instanceof CustomError) {
-//       res.status(err.serializeErrors().statusCode).json(err.serializeErrors());
-//     } else {
-
-//       res.status(500).json({
-//         message: err?.message || "Server Error",
-//         statusCode: 500,
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).json({
-//       message: "Something went wrong",
-//       statusCode: 500,
-//     });
-//   }
-// };
-
-
 export const globalErrorHandler = async (
   err: any,
   _req: Request,
   res: Response,
   _next: NextFunction
 ) => {
-  if (res.headersSent) {
-    return _next(err);
-  }
-
   try {
     if (err instanceof CustomError) {
-      return res.status(err.serializeErrors().statusCode).json(err.serializeErrors());
+      res.status(err.serializeErrors().statusCode).json(err.serializeErrors());
+    } else {
+
+      res.status(500).json({
+        message: err?.message || "Server Error",
+        statusCode: 500,
+      });
     }
-    return res.status(500).json({
-      message: err?.message || "Server Error",
-      statusCode: 500,
-    });
   } catch (error) {
-    return res.status(500).json({
+    res.status(500).json({
       message: "Something went wrong",
       statusCode: 500,
     });
   }
 };
+
