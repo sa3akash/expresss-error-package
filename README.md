@@ -19,7 +19,7 @@ const app = express();
 // Your routes here
 
 // Error handling middleware
-app.use(globalErrorHandler());
+app.use(globalErrorHandler);
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
