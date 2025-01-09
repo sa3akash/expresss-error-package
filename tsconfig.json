@@ -1,22 +1,14 @@
-{
-  "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
-    "outDir": "./dist",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "removeComments": true,
-    "forceConsistentCasingInFileNames": true,
-    "typeRoots": ["./node_modules/@types", "src/@types"],
-    "sourceMap": true,
-    "strictFunctionTypes": true,
-
-    "baseUrl": "./",
-    "paths": {
-      "*": ["node_modules/*", "src/@types/*"]
-    }
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+{  
+  "compilerOptions": {  
+    "target": "ESNext",                 
+    "module": "ESNext",                 
+    "moduleResolution": "Node",          
+    "outDir": "./dist",                 
+    "strict": true,                     
+    "esModuleInterop": true,            
+    "skipLibCheck": true,               
+    "forceConsistentCasingInFileNames": true  
+  },  
+  "include": ["src/**/*.ts"],  
+  "exclude": ["node_modules", "dist"]  
 }

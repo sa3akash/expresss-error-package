@@ -1,24 +1,36 @@
 {
   "name": "error-express",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsup",
+    "watch": "tsup --watch"
   },
-  "keywords": [],
+  "keywords": [
+    "express",
+    "sa3akash",
+    "express-error",
+    "error-express",
+    "catch-express-error",
+    "throw-express-error",
+    "global-error",
+    "global-error-express"
+  ],
   "author": "sa2avroo",
   "license": "MIT",
   "type": "commonjs",
   "description": "",
-  "peerDependencies": {
-    "express": "^4.21.2"
-  },
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@types/express": "^5.0.0",
+    "tsup": "^8.3.5",
     "typescript": "^5.7.3"
   },
-  "types": "src/index.d.ts",
-  "files": [
-    "src/**/*"
-  ]
+  "dependencies": {
+    "express": "^4.21.2"
+  }
 }
