@@ -88,7 +88,7 @@ export class ServerError extends CustomError {
   }
 }
 
-export const globalErrorHandler = async (
+export const globalErrorHandler = (
   err: any,
   _req: Request,
   res: Response,
