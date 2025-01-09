@@ -1,6 +1,6 @@
 {
   "name": "error-express",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -23,7 +23,8 @@
   "type": "commonjs",
   "description": "",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "devDependencies": {
     "@types/express": "^5.0.0",
