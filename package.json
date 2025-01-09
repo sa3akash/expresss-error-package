@@ -1,6 +1,6 @@
 {
   "name": "error-express",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -8,6 +8,14 @@
     "build": "tsup",
     "watch": "tsup --watch"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sa3akash/expresss-error-package.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sa3akash/expresss-error-package/issues"
+  },
+  "homepage": "https://github.com/sa3akash/expresss-error-package",
   "keywords": [
     "express",
     "sa3akash",
