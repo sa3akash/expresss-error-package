@@ -8,7 +8,6 @@ I’m thrilled to introduce **`error-express`**, a powerful NPM package that rev
 
 Are you tired of cluttered error management and want a simple yet effective way to handle errors? Look no further! Here’s why you should try `error-express`:
 
-
 ### 🔑 **Key Features:**
 
 - **Easy Installation**: Just run `npm install error-express` to get started in no time!
@@ -21,30 +20,46 @@ Are you tired of cluttered error management and want a simple yet effective way 
 
 1. **Simple Installation**  
    Get started in a breeze! Just run:
+
    ```bash
    npm install error-express
    ```
 
+   ```bash
+   yarn add error-express
+   ```
+
+   ```bash
+   pnpm add error-express
+   ```
+
+   ```bash
+   bun add error-express
+   ```
+
 2. **Global Error Handling**  
    Use the built-in `globalErrorHandler` middleware to efficiently catch and respond to errors across your application:
+
    ```javascript
-   const { globalErrorHandler } = require('error-express');
+   const { globalErrorHandler } = require("error-express");
    app.use(globalErrorHandler);
    ```
 
 3. **Custom Error Creation**  
    Easily throw custom errors using the `ServerError` class, allowing for better error messaging and HTTP status handling:
+
    ```javascript
-   next(new ServerError('This is a custom server error', 500));
+   next(new ServerError("This is a custom server error", 500));
    ```
 
 4. **Abstract CustomError Class**  
    Extend the `CustomError` class to implement your own custom error types, ensuring consistent error responses:
+
    ```javascript
    class MyCustomError extends CustomError {
-       serializeErrors() {
-           return { message: this.message, status: this.statusCode };
-       }
+     serializeErrors() {
+       return { message: this.message, status: this.statusCode };
+     }
    }
    ```
 
@@ -53,19 +68,59 @@ Are you tired of cluttered error management and want a simple yet effective way 
 
 ## 📚 **Usage Example:**
 
+#### 🌟 **CommonJS Syntax (CJS)**
+
+If you’re using CommonJS (the default in Node.js), here’s how to set up `error-express` in your app:
+
 ```javascript
-const express = require('express');
-const { globalErrorHandler } = require('error-express');
+const express = require("express");
+const { globalErrorHandler } = require("error-express");
 
 const app = express();
 
 // Your routes here
+app.get("/error", (req, res, next) => {
+  next(new ServerError("This is a custom server error", 500));
+});
+
+// Example of throwing a custom error
+app.get("/some-route", (req, res) => {
+  throw new ServerError("Something went wrong!", 400);
+});
 
 // Error handling middleware
 app.use(globalErrorHandler);
 
 app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+  console.log("Server is running on port 3000");
+});
+```
+
+#### 🌟 **ES6 Module Syntax (ESM)**
+
+If you prefer using ES6 modules, your setup would look like this:
+
+```javascript
+import express from "express";
+import { globalErrorHandler, ServerError } from "error-express";
+
+const app = express();
+
+// Your routes here
+app.get("/error", (req, res, next) => {
+  next(new ServerError("This is a custom server error", 500));
+});
+
+// Example of throwing a custom error
+app.get("/some-route", (req, res) => {
+  throw new ServerError("Something went wrong!", 400);
+});
+
+// Error handling middleware
+app.use(globalErrorHandler);
+
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
 });
 ```
 
@@ -74,15 +129,15 @@ app.listen(3000, () => {
 You can throw custom errors using the `ServerError` class:
 
 ```javascript
-import { ServerError } from 'error-express';
+import { ServerError } from "error-express";
 
-app.get('/error', (req, res, next) => {
-  next(new ServerError('This is a custom server error', 500));
+app.get("/error", (req, res, next) => {
+  next(new ServerError("This is a custom server error", 500));
 });
 
 // Example of throwing a custom error
-app.get('/some-route', (req, res) => {
-    throw new ServerError('Something went wrong!', 400);
+app.get("/some-route", (req, res) => {
+  throw new ServerError("Something went wrong!", 400);
 });
 ```
 
@@ -93,17 +148,15 @@ app.get('/some-route', (req, res) => {
 - **Customizable Responses**: Tailor error responses to fit your application needs.
 - **Community Contributions**: Join the effort! Contribute by submitting issues or pull requests.
 
-
 ### 🌈 **Why Choose `error-express`?**
 
 - **Streamlined Management**: Keep your codebase clean, organized, and easy to maintain.
 - **Enhanced Developer Experience**: Spend more time building features and less time debugging errors.
 - **Community Driven**: We're open to contributions! Join us by submitting issues or pull requests.
 
-
 ### 📜 **Get Started Today!**
 
-Don’t let error handling be a headache. Try **`error-express`** and take your error management to the next level! 
+Don’t let error handling be a headache. Try **`error-express`** and take your error management to the next level!
 
 ### ⚠️ **globalErrorHandler**:
 
@@ -130,28 +183,25 @@ An abstract class for creating custom errors. Extend this class to implement you
 
 Contributions are welcome! Please open an issue or submit a pull request.
 
-
 ## Acknowledgements
 
 - [Express](https://expressjs.com/)
 - [Node.js](https://nodejs.org/)
 
+### 📜 **Licensing**
 
-
-
-### 📜 **Licensing**  
 This project is licensed under the MIT License, ensuring you're free to use and modify it for your projects.
 
-### 🤝 **Get In Touch!**  
+### 🤝 **Get In Touch!**
+
 Have questions or feedback? Reach out at [sa2avroo@gmail.com](mailto:sa2avroo@gmail.com).
 
 ---
 
 💡 **Start using `error-express` today and make error handling as seamless as it should be!** 🌍✨
 
---- 
+---
 
 Feel free to adjust any section as needed! This template covers installation, usage, API details, and licensing in a clear and organized manner.
-
 
 ---
