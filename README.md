@@ -74,7 +74,7 @@ If you’re using CommonJS (the default in Node.js), here’s how to set up `err
 
 ```javascript
 const express = require("express");
-const { globalErrorHandler } = require("error-express");
+const { globalErrorHandler, ServerError } = require("error-express");
 
 const app = express();
 
