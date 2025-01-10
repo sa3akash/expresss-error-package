@@ -1,8 +1,8 @@
-### 🚀 **Introducing `error-express`: Your Ultimate Error Handling Solution for Express Applications!** 🚀
+# 🚀 **Introducing `error-express`: Your Ultimate Error Handling Solution for Express Applications!** 🚀
 
 Are you tired of messy error handling in your Express apps? Say goodbye to confusion and frustration with **`error-express`**, a powerful NPM package designed to streamline error management in your Express applications.
 
-### 🌟 **Key Features:**
+## 🌟 **Key Features:**
 
 1. **Simple Installation**  
    Get started in a breeze! Just run:
@@ -36,7 +36,7 @@ Are you tired of messy error handling in your Express apps? Say goodbye to confu
 5. **Comprehensive Serialization**  
    The `serializeErrors()` method provides a structured representation of your errors, making it easy to handle responses.
 
-### 📚 **Usage Example:**
+## 📚 **Usage Example:**
 
 ```javascript
 const express = require('express');
@@ -71,7 +71,7 @@ app.get('/some-route', (req, res) => {
 });
 ```
 
-### 🌈 **Benefits:**
+## 🌈 **Benefits:**
 
 - **Streamlined Error Management**: Keeps your code clean and organized.
 - **Improved Developer Experience**: Focus on building features, not handling errors.
