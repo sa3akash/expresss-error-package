@@ -26,7 +26,11 @@
     "global-error",
     "global-error-express"
   ],
-  "author": "sa2avroo",
+  "author": {
+    "name": "Shakil Ahmed",
+    "email": "sa2avroo@gmail.com",
+    "url": "https://github.com/sa3akash"
+  },
   "license": "MIT",
   "type": "commonjs",
   "description": "",

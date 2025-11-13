@@ -1,76 +1,34 @@
-# 🚀 **Introducing `error-express`: Your Ultimate Error Handling Solution for Express Applications!** 🚀
+# error-express
 
-Are you tired of messy error handling in your Express apps? Say goodbye to confusion and frustration with **`error-express`**, a powerful NPM package designed to streamline error management in your Express applications.
+Instant error handling for Express.js. Catch errors automatically and respond with clean, consistent JSON errors. **No manual try-catch blocks needed!**
 
-🚀 **Exciting News for Express Developers!** 🚀
+## Why error-express?
 
-I’m thrilled to introduce **`error-express`**, a powerful NPM package that revolutionizes error handling in your Express applications! 🌟
+Traditional Express error handling is tedious:
+- You need to wrap routes in try-catch blocks
+- You have to manually call `next(error)`
+- You need to handle both sync and async errors
+- Every error response needs to be formatted consistently
 
-Are you tired of cluttered error management and want a simple yet effective way to handle errors? Look no further! Here’s why you should try `error-express`:
+**error-express handles all of this automatically.** Just throw an error and it's caught, formatted, and sent as JSON.
 
-### 🔑 **Key Features:**
+## Install
 
-- **Easy Installation**: Just run `npm install error-express` to get started in no time!
-- **Global Error Handling**: Use the built-in `globalErrorHandler` middleware to efficiently manage errors across your app, ensuring a smooth user experience.
-- **Custom Error Creation**: Throw custom errors with user-friendly messages and appropriate HTTP status codes using the `ServerError` class.
-- **Extendable CustomError Class**: Create your own custom error types and ensure consistent error responses that fit your application's needs.
-- **Structured Error Serialization**: The `serializeErrors()` method helps serialize error details for consistent and meaningful responses.
+```bash
+npm install error-express
+```
 
-## 🌟 **Steps:**
+Or use your preferred package manager:
 
-1. **Simple Installation**  
-   Get started in a breeze! Just run:
+```bash
+yarn add error-express
+pnpm add error-express
+bun add error-express
+```
 
-   ```bash
-   npm install error-express
-   ```
+## Quick Start
 
-   ```bash
-   yarn add error-express
-   ```
-
-   ```bash
-   pnpm add error-express
-   ```
-
-   ```bash
-   bun add error-express
-   ```
-
-2. **Global Error Handling**  
-   Use the built-in `globalErrorHandler` middleware to efficiently catch and respond to errors across your application:
-
-   ```javascript
-   const { globalErrorHandler } = require("error-express");
-   app.use(globalErrorHandler);
-   ```
-
-3. **Custom Error Creation**  
-   Easily throw custom errors using the `ServerError` class, allowing for better error messaging and HTTP status handling:
-
-   ```javascript
-   next(new ServerError("This is a custom server error", 500));
-   ```
-
-4. **Abstract CustomError Class**  
-   Extend the `CustomError` class to implement your own custom error types, ensuring consistent error responses:
-
-   ```javascript
-   class MyCustomError extends CustomError {
-     serializeErrors() {
-       return { message: this.message, status: this.statusCode };
-     }
-   }
-   ```
-
-5. **Comprehensive Serialization**  
-   The `serializeErrors()` method provides a structured representation of your errors, making it easy to handle responses.
-
-## 📚 **Usage Example:**
-
-#### 🌟 **CommonJS Syntax (CJS)**
-
-If you’re using CommonJS (the default in Node.js), here’s how to set up `error-express` in your app:
+**1. Add the error handler to your Express app:**
 
 ```javascript
 const express = require("express");
@@ -79,26 +37,195 @@ const { globalErrorHandler, ServerError } = require("error-express");
 const app = express();
 
 // Your routes here
-app.get("/error", (req, res, next) => {
-  next(new ServerError("This is a custom server error", 500));
+app.get("/api/users", (req, res) => {
+
+  res.json({ message: "success" });
 });
 
-// Example of throwing a custom error
-app.get("/some-route", (req, res) => {
-  throw new ServerError("Something went wrong!", 400);
-});
-
-// Error handling middleware
+// Add this at the end, after all routes
 app.use(globalErrorHandler);
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+app.listen(3000);
+```
+
+**2. Throw errors in your routes (that's it!):**
+
+```javascript
+// No try-catch needed!
+app.get("/api/users/:id", (req, res, next) => {
+  const user = null; // Assume user not found
+
+  if (!user) {
+    throw new ServerError("User not found", 404);
+  }
+
+  res.json(user);
 });
 ```
 
-#### 🌟 **ES6 Module Syntax (ESM)**
+Errors are **automatically caught** and returned as JSON.
 
-If you prefer using ES6 modules, your setup would look like this:
+## How It Works
+
+error-express wraps your route handlers to automatically catch:
+- ✅ Thrown errors (synchronous)
+- ✅ Promise rejections (async/await)
+- ✅ Callback errors (via `next()`)
+- ✅ Unhandled exceptions
+
+All errors are formatted consistently without you writing try-catch.
+
+## Features
+
+- **No Try-Catch Needed**: Automatic error catching in sync and async code
+- **Automatic Error Catching**: Catches thrown errors in routes and middleware
+- **Consistent JSON Responses**: All errors return a standardized format
+- **Custom HTTP Status Codes**: Set the right status code for each error
+- **Sync/Async Support**: Works with synchronous and asynchronous code without manual handling
+- **Extendable**: Create custom error types by extending `CustomError`
+- **Clean Code**: Write business logic, not error handling boilerplate
+
+## API
+
+### `ServerError`
+
+Quick way to throw errors with a message and HTTP status code:
+
+```javascript
+// 500 status by default
+throw new ServerError("Something went wrong");
+
+// Custom status code
+throw new ServerError("Not found", 404);
+throw new ServerError("Invalid input", 400);
+```
+
+Response format:
+
+```json
+{
+  "message": "Something went wrong",
+  "status": "error",
+  "statusCode": 500
+}
+```
+
+### `CustomError` (Advanced)
+
+Create your own error types for specific use cases:
+
+```javascript
+class ValidationError extends CustomError {
+  status = "validation_error";
+
+  constructor(message) {
+    super(message, 400);
+  }
+
+  serializeErrors() {
+    return {
+      message: this.message,
+      status: this.status,
+      statusCode: this.statusCode,
+    };
+  }
+}
+
+// Use it
+app.post("/api/users", (req, res, next) => {
+  if (!req.body.email) {
+    return next(new ValidationError("Email is required"));
+  }
+  res.json({ success: true });
+});
+```
+
+### `globalErrorHandler`
+
+The middleware that catches all errors. Always add it last:
+
+```javascript
+app.use(globalErrorHandler);
+```
+
+## Examples
+
+### ❌ Without error-express (Traditional Way)
+
+```javascript
+// Manual try-catch, manual next(), manual formatting
+app.post("/api/users", async (req, res, next) => {
+  try {
+    const user = await User.create(req.body);
+    res.json(user);
+  } catch (err) {
+    next(new ServerError("Failed to create user", 500));
+  }
+});
+```
+
+### ✅ With error-express (Our Way)
+
+```javascript
+// Just throw the error! No try-catch needed
+app.post("/api/users", async (req, res, next) => {
+  const user = await User.create(req.body);
+  res.json(user);
+});
+
+// Errors are caught and formatted automatically
+```
+
+### Validation Error (No Try-Catch)
+
+```javascript
+app.post("/api/signup", (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email) {
+    return next(new ServerError("Email is required", 400));
+  }
+
+  if (password.length < 6) {
+    return next(new ServerError("Password must be at least 6 characters", 400));
+  }
+
+  res.json({ success: true });
+});
+```
+
+### Async Errors (Automatically Caught)
+
+```javascript
+// Even with async, errors are caught automatically!
+app.get("/api/data", async (req, res, next) => {
+  const data = await fetchFromDatabase(); // If this fails, it's caught
+  const parsed = JSON.parse(data); // If this fails, it's caught
+  res.json(parsed);
+});
+```
+
+### Middleware Error Handling
+
+```javascript
+const checkAuth = (req, res, next) => {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    throw new ServerError("Unauthorized", 401);
+  }
+
+  next();
+};
+
+app.get("/api/protected", checkAuth, (req, res) => {
+  res.json({ data: "secret" });
+});
+```
+
+### ES Modules
+
+If you're using ES modules:
 
 ```javascript
 import express from "express";
@@ -106,102 +233,64 @@ import { globalErrorHandler, ServerError } from "error-express";
 
 const app = express();
 
-// Your routes here
-app.get("/error", (req, res, next) => {
-  next(new ServerError("This is a custom server error", 500));
+app.get("/api/test", (req, res) => {
+  throw new ServerError("Test error", 500);
 });
 
-// Example of throwing a custom error
-app.get("/some-route", (req, res) => {
-  throw new ServerError("Something went wrong!", 400);
-});
-
-// Error handling middleware
 app.use(globalErrorHandler);
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
+app.listen(3000);
 ```
 
-### ⚠️ **Throwing Custom Errors:**
-
-You can throw custom errors using the `ServerError` class:
+## Real-World Example
 
 ```javascript
-import { ServerError } from "error-express";
+const express = require("express");
+const { globalErrorHandler, ServerError } = require("error-express");
+const app = express();
 
-app.get("/error", (req, res, next) => {
-  next(new ServerError("This is a custom server error", 500));
+app.use(express.json());
+
+// Database call - no try-catch needed!
+app.post("/api/users", async (req, res, next) => {
+  // Errors are caught automatically
+  const user = await User.create(req.body);
+  res.status(201).json(user);
 });
 
-// Example of throwing a custom error
-app.get("/some-route", (req, res) => {
-  throw new ServerError("Something went wrong!", 400);
+// Validation - simple and clean
+app.put("/api/users/:id", (req, res, next) => {
+  if (!req.params.id) {
+    return next(new ServerError("User ID is required", 400));
+  }
+
+  const user = User.findById(req.params.id);
+  if (!user) {
+    return next(new ServerError("User not found", 404));
+  }
+
+  res.json(user);
 });
+
+// All errors handled automatically with proper status codes and formatting
+app.use(globalErrorHandler);
+
+app.listen(3000);
 ```
 
-## 🌈 **Benefits:**
+## Support
 
-- **Streamlined Error Management**: Keeps your code clean and organized.
-- **Improved Developer Experience**: Focus on building features, not handling errors.
-- **Customizable Responses**: Tailor error responses to fit your application needs.
-- **Community Contributions**: Join the effort! Contribute by submitting issues or pull requests.
+Found a bug? [Open an issue on GitHub](https://github.com/sa3akash/expresss-error-package/issues)
 
-### 🌈 **Why Choose `error-express`?**
+## Author
 
-- **Streamlined Management**: Keep your codebase clean, organized, and easy to maintain.
-- **Enhanced Developer Experience**: Spend more time building features and less time debugging errors.
-- **Community Driven**: We're open to contributions! Join us by submitting issues or pull requests.
+**Shakil Ahmed** ([@sa3akash](https://github.com/sa3akash))
 
-### 📜 **Get Started Today!**
 
-Don’t let error handling be a headache. Try **`error-express`** and take your error management to the next level!
+## License
 
-### ⚠️ **globalErrorHandler**:
+MIT License - [See LICENSE file](./LICENSE) for details
 
-An Express error-handling middleware that catches errors and sends appropriate responses.
+- GitHub: [sa3akash](https://github.com/sa3akash)
+- Repository: [expresss-error-package](https://github.com/sa3akash/expresss-error-package)
 
-### **ServerError**:
-
-A custom error class for server errors.
-
-#### Constructor
-
-- `message`: The error message.
-- `statusCode`: The HTTP status code (default is 500).
-
-### **CustomError**:
-
-An abstract class for creating custom errors. Extend this class to implement your own custom errors.
-
-#### Methods
-
-- **serializeErrors()**: Serializes the error into an object with `message`, `status`, and `statusCode` properties.
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request.
-
-## Acknowledgements
-
-- [Express](https://expressjs.com/)
-- [Node.js](https://nodejs.org/)
-
-### 📜 **Licensing**
-
-This project is licensed under the MIT License, ensuring you're free to use and modify it for your projects.
-
-### 🤝 **Get In Touch!**
-
-Have questions or feedback? Reach out at [sa2avroo@gmail.com](mailto:sa2avroo@gmail.com).
-
----
-
-💡 **Start using `error-express` today and make error handling as seamless as it should be!** 🌍✨
-
----
-
-Feel free to adjust any section as needed! This template covers installation, usage, API details, and licensing in a clear and organized manner.
-
----
