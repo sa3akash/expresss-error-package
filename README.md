@@ -182,9 +182,9 @@ All errors return a consistent JSON format:
 For flexibility, use `ServerError` with any custom status code:
 
 ```javascript
-throw new ServerError("Something went wrong", 500);
-throw new ServerError("Not found", 404);
-throw new ServerError("Invalid input", 400);
+throw new ServerError("Something went wrong", HttpStatusCodes.INTERNAL_SERVER_ERROR); // 500
+throw new ServerError("Not found", HttpStatusCodes.NOT_FOUND); // 404
+throw new ServerError("Invalid input", HttpStatusCodes.BAD_REQUEST); // 400
 ```
 
 ### `AppError` - Base Class
