@@ -56,7 +56,7 @@ app.get("/api/users/:id", (req, res, next) => {
   const user = null; // Assume user not found
 
   if (!user) {
-    throw new ServerError("User not found", 404);
+    throw new ServerError("User not found", 404); // custom message and status code
   }
 
   res.json(user);
@@ -82,71 +82,179 @@ All errors are formatted consistently without you writing try-catch.
 - **Consistent JSON Responses**: All errors return a standardized format
 - **Custom HTTP Status Codes**: Set the right status code for each error
 - **Sync/Async Support**: Works with synchronous and asynchronous code without manual handling
-- **Extendable**: Create custom error types by extending `CustomError`
+- **Extendable**: Create custom error types by extending `AppError`
 - **Clean Code**: Write business logic, not error handling boilerplate
+- **20+ Pre-built Error Classes**: Ready-to-use for common HTTP scenarios (400, 401, 404, 429, etc.)
+- **Type-Safe**: Full TypeScript support with proper type definitions
+- **Custom Error Handlers**: Extend error handling for logging, monitoring, and Sentry integration
 
 ## API
 
-### `ServerError`
+### Built-in Error Classes
 
-Quick way to throw errors with a message and HTTP status code:
+All error classes come pre-configured with correct HTTP status codes and default messages. Use them directly without manual setup:
+
+#### Client Errors (4xx)
 
 ```javascript
-// 500 status by default
+// 400 Bad Request
+throw new BadRequestError("Invalid input format");
+
+// 401 Unauthorized
+throw new UnauthorizedError("Missing authentication token");
+
+// 403 Forbidden
+throw new ForbiddenError("You don't have permission");
+
+// 404 Not Found
+throw new NotFoundError("Resource not found");
+
+// 405 Method Not Allowed
+throw new MethodNotAllowedError();
+
+// 406 Not Acceptable
+throw new NotAcceptableError();
+
+// 408 Request Timeout
+throw new RequestTimeoutError();
+
+// 409 Conflict
+throw new ConflictError("Email already exists");
+
+// 413 Payload Too Large
+throw new PayloadTooLargeError("File size exceeds limit");
+
+// 415 Unsupported Media Type
+throw new UnsupportedMediaTypeError("Only JSON is accepted");
+
+// 422 Unprocessable Entity
+throw new UnprocessableEntityError("Validation failed");
+
+// 429 Too Many Requests
+throw new TooManyRequestsError("Rate limit exceeded");
+
+// 402 Payment Required
+throw new PaymentRequiredError("Subscription required");
+
+// 410 Gone
+throw new GoneError("Resource permanently deleted");
+
+// 412 Precondition Failed
+throw new PreconditionFailedError();
+```
+
+#### Server Errors (5xx)
+
+```javascript
+// 500 Internal Server Error (default)
 throw new ServerError("Something went wrong");
 
-// Custom status code
+// 501 Not Implemented
+throw new NotImplementedError("Feature coming soon");
+
+// 502 Bad Gateway
+throw new BadGatewayError();
+
+// 503 Service Unavailable
+throw new ServiceUnavailableError("Maintenance in progress");
+
+// 504 Gateway Timeout
+throw new GatewayTimeoutError();
+
+// 507 Insufficient Storage
+throw new InsufficientStorageError();
+```
+
+#### Response Format
+
+All errors return a consistent JSON format:
+
+```json
+{
+  "status": "error",
+  "statusCode": 404,
+  "message": "Resource not found"
+}
+```
+
+### `ServerError` - Custom Status Code
+
+For flexibility, use `ServerError` with any custom status code:
+
+```javascript
+throw new ServerError("Something went wrong", 500);
 throw new ServerError("Not found", 404);
 throw new ServerError("Invalid input", 400);
 ```
 
-Response format:
+### `AppError` - Base Class
 
-```json
-{
-  "message": "Something went wrong",
-  "status": "error",
-  "statusCode": 500
-}
-```
-
-### `CustomError` (Advanced)
-
-Create your own error types for specific use cases:
+All error classes extend `AppError`. You can also extend it for custom errors:
 
 ```javascript
-class ValidationError extends CustomError {
-  status = "validation_error";
-
-  constructor(message) {
-    super(message, 400);
-  }
-
-  serializeErrors() {
-    return {
-      message: this.message,
-      status: this.status,
-      statusCode: this.statusCode,
-    };
+class CustomValidationError extends AppError {
+  constructor(message, field) {
+    super(message, 400, true);
+    this.field = field;
   }
 }
 
-// Use it
-app.post("/api/users", (req, res, next) => {
-  if (!req.body.email) {
-    return next(new ValidationError("Email is required"));
-  }
-  res.json({ success: true });
-});
+throw new CustomValidationError("Invalid email", "email");
 ```
 
 ### `globalErrorHandler`
 
-The middleware that catches all errors. Always add it last:
+The middleware that catches and formats all errors. Always add it last:
 
 ```javascript
 app.use(globalErrorHandler);
 ```
+
+## Benefits
+
+### 1. **Zero Try-Catch Boilerplate**
+Write clean async code without wrapping everything in try-catch:
+
+```javascript
+// ❌ Before (verbose)
+app.post("/api/users", async (req, res, next) => {
+  try {
+    const user = await User.create(req.body);
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ✅ After (clean)
+app.post("/api/users", async (req, res, next) => {
+  const user = await User.create(req.body);
+  res.json(user);
+});
+```
+
+### 2. **Consistent Error Format**
+Every error returns the same structure automatically, improving frontend integration.
+
+### 3. **DRY Principle**
+Use pre-built error classes instead of creating custom responses:
+
+```javascript
+// ✅ One-liner, reusable across your app
+throw new NotFoundError("User not found");
+throw new UnauthorizedError();
+throw new TooManyRequestsError("Rate limited");
+```
+
+### 4. **Type Safety**
+Full TypeScript support with proper error typing for better IDE autocomplete.
+
+### 5. **Automatic Handling**
+All these are caught without manual try-catch:
+- ✅ Thrown errors (sync)
+- ✅ Promise rejections (async)
+- ✅ Callback errors
+- ✅ Middleware errors
 
 ## Examples
 
@@ -183,11 +291,11 @@ app.post("/api/signup", (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email) {
-    return next(new ServerError("Email is required", 400));
+    throw new BadRequestError("Email is required");
   }
 
   if (password.length < 6) {
-    return next(new ServerError("Password must be at least 6 characters", 400));
+    throw new BadRequestError("Password must be at least 6 characters");
   }
 
   res.json({ success: true });
@@ -205,74 +313,217 @@ app.get("/api/data", async (req, res, next) => {
 });
 ```
 
-### Middleware Error Handling
+### Authentication Middleware
 
 ```javascript
 const checkAuth = (req, res, next) => {
   const token = req.headers.authorization;
 
   if (!token) {
-    throw new ServerError("Unauthorized", 401);
+    throw new UnauthorizedError("Missing authentication token");
   }
 
-  next();
+  try {
+    const decoded = verifyToken(token);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    throw new UnauthorizedError("Invalid token");
+  }
 };
 
 app.get("/api/protected", checkAuth, (req, res) => {
-  res.json({ data: "secret" });
+  res.json({ data: "secret", user: req.user });
 });
 ```
 
-### ES Modules
-
-If you're using ES modules:
+### Rate Limiting
 
 ```javascript
-import express from "express";
-import { globalErrorHandler, ServerError } from "error-express";
+app.post("/api/login", (req, res, next) => {
+  const attempts = getLoginAttempts(req.ip);
 
-const app = express();
+  if (attempts > 5) {
+    throw new TooManyRequestsError("Too many login attempts. Try again later.");
+  }
 
-app.get("/api/test", (req, res) => {
-  throw new ServerError("Test error", 500);
+  // Login logic here
+  res.json({ token: "..." });
 });
+```
 
-app.use(globalErrorHandler);
+### File Upload Validation
 
-app.listen(3000);
+```javascript
+app.post("/api/upload", (req, res, next) => {
+  const fileSize = req.headers["content-length"];
+
+  if (fileSize > 10 * 1024 * 1024) {
+    throw new PayloadTooLargeError("File must be under 10MB");
+  }
+
+  const contentType = req.headers["content-type"];
+  if (!contentType?.includes("application/json")) {
+    throw new UnsupportedMediaTypeError("Only JSON is accepted");
+  }
+
+  res.json({ success: true });
+});
+```
+
+## Custom Error Handling
+
+### Create Custom Error Classes
+
+Extend `AppError` for domain-specific errors:
+
+```javascript
+import { AppError } from "error-express";
+
+class ValidationError extends AppError {
+  constructor(message, field) {
+    super(message, 400, true);
+    this.field = field;
+  }
+}
+
+class DatabaseError extends AppError {
+  constructor(message) {
+    super(message, 500, true);
+  }
+}
+
+// Usage
+app.post("/api/users", (req, res, next) => {
+  if (!req.body.email) {
+    throw new ValidationError("Email is required", "email");
+  }
+  res.json({ success: true });
+});
+```
+
+### Custom Global Error Handler
+
+Extend the error handler for logging, monitoring, or custom responses:
+
+```javascript
+import { handleError, AppError } from "error-express";
+import { Request, Response, NextFunction } from "express";
+
+// Custom handler with logging
+const customErrorHandler = (
+  err: Error | AppError,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const errorResponse = handleError(err);
+
+  // Log to external service
+  console.error({
+    timestamp: new Date().toISOString(),
+    path: req.path,
+    method: req.method,
+    statusCode: errorResponse.statusCode,
+    message: errorResponse.message,
+    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+  });
+
+  // Send response
+  res.status(errorResponse.statusCode).json({
+    status: errorResponse.status,
+    statusCode: errorResponse.statusCode,
+    message: errorResponse.message,
+    // Add custom fields
+    timestamp: new Date().toISOString(),
+    path: req.path,
+  });
+};
+
+app.use(customErrorHandler);
+```
+
+### Add Monitoring & Sentry Integration
+
+```javascript
+import * as Sentry from "@sentry/node";
+import { handleError, AppError } from "error-express";
+
+const monitoredErrorHandler = (
+  err: Error | AppError,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  // Capture in Sentry
+  if (err instanceof AppError && !err.isOparational) {
+    Sentry.captureException(err);
+  }
+
+  const errorResponse = handleError(err);
+  res.status(errorResponse.statusCode).json({
+    status: errorResponse.status,
+    statusCode: errorResponse.statusCode,
+    message: errorResponse.message,
+  });
+};
+
+app.use(monitoredErrorHandler);
 ```
 
 ## Real-World Example
 
+Complete server with authentication, validation, and error handling:
+
 ```javascript
 const express = require("express");
-const { globalErrorHandler, ServerError } = require("error-express");
-const app = express();
+const {
+  globalErrorHandler,
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+  TooManyRequestsError,
+} = require("error-express");
 
+const app = express();
 app.use(express.json());
 
-// Database call - no try-catch needed!
-app.post("/api/users", async (req, res, next) => {
-  // Errors are caught automatically
+// Auth middleware
+const auth = (req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) throw new UnauthorizedError();
+  req.user = verifyToken(token);
+  next();
+};
+
+// Rate limiting middleware
+const rateLimit = (req, res, next) => {
+  if (exceedsRateLimit(req.ip)) {
+    throw new TooManyRequestsError("Rate limited");
+  }
+  next();
+};
+
+// Routes - clean and simple!
+app.post("/api/users", rateLimit, async (req, res) => {
+  if (!req.body.email) throw new BadRequestError("Email required");
   const user = await User.create(req.body);
   res.status(201).json(user);
 });
 
-// Validation - simple and clean
-app.put("/api/users/:id", (req, res, next) => {
-  if (!req.params.id) {
-    return next(new ServerError("User ID is required", 400));
-  }
-
-  const user = User.findById(req.params.id);
-  if (!user) {
-    return next(new ServerError("User not found", 404));
-  }
-
+app.get("/api/users/:id", async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) throw new NotFoundError("User not found");
   res.json(user);
 });
 
-// All errors handled automatically with proper status codes and formatting
+app.delete("/api/users/:id", auth, async (req, res) => {
+  const user = await User.findByIdAndDelete(req.params.id);
+  if (!user) throw new NotFoundError("User not found");
+  res.json({ deleted: true });
+});
+
+// Error handling - ONE line!
 app.use(globalErrorHandler);
 
 app.listen(3000);
