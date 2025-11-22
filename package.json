@@ -1,8 +1,8 @@
 {
   "name": "error-express",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup",
@@ -24,7 +24,11 @@
     "catch-express-error",
     "throw-express-error",
     "global-error",
-    "global-error-express"
+    "global-error-express",
+    "error-handler",
+    "express-error-handler",
+    "error-middleware",
+    "express-async-errors"
   ],
   "author": {
     "name": "Shakil Ahmed",
@@ -33,11 +37,18 @@
   },
   "license": "MIT",
   "type": "commonjs",
-  "description": "",
+  "description": "A lightweight, zero-dependency package to handle global errors in Express.js applications. It catches unhandled errors and provides a simple, yet powerful way to manage them.",
   "files": [
     "dist",
     "README.md"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "devDependencies": {
     "@types/express": "^5.0.5",
     "tsup": "^8.3.5",
