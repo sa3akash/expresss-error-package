@@ -1,9 +1,13 @@
 name: Publish TypeScript Package
 
+# on:
+#   push:
+#     branches:
+#       - main
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [published]
+    workflow_dispatch: # ← Add this for manual trigger
 
 jobs:
   publish:
