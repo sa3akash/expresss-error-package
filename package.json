@@ -1,8 +1,8 @@
 {
   "name": "error-express",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "main": "dist/index.js",
-  "module": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup",
@@ -42,19 +42,12 @@
     "dist",
     "README.md"
   ],
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
   "devDependencies": {
     "@types/express": "^5.0.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3"
   },
-  "peerDependencies": {
+  "dependencies": {
     "express": "^4.21.2"
   }
 }
