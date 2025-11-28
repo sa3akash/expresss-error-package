@@ -2,6 +2,17 @@ import type { NextFunction, Request, Response } from "express";
 import { DefaultStatusMessages, HttpStatusCodes } from "./statusCodes";
 
 /**
+ * Convert a numeric HTTP status code to its constant key name from `HttpStatusCodes`.
+ * Example: `500 -> 'INTERNAL_SERVER_ERROR'`.
+ */
+const getStatusCodeKey = (statusCode: number): string => {
+  const match = Object.keys(HttpStatusCodes).find(
+    (k) => (HttpStatusCodes as any)[k] === statusCode
+  );
+  return match ?? "INTERNAL_SERVER_ERROR";
+};
+
+/**
  * Base application error class that extends the native Error class.
  * Used to create standardized application errors with HTTP status codes.
  * 
@@ -12,18 +23,22 @@ import { DefaultStatusMessages, HttpStatusCodes } from "./statusCodes";
  * @extends {Error}
  */
 export class AppError extends Error {
+  public code: string;
   /**
    * Creates an AppError instance.
    * @param {string} message - The error message
    * @param {number} statusCode - The HTTP status code (e.g., 400, 500)
    * @param {boolean} [isOparational=true] - Whether this is an operational error that can be handled gracefully
+   * @param {string} [code] - A short machine-friendly error code (e.g. 'NOT_FOUND')
    */
   constructor(
     public message: string,
     public statusCode: number,
-    public isOparational: boolean = true
+    public isOparational: boolean = true,
+    code?: string
   ) {
     super(message);
+    this.code = code ?? getStatusCodeKey(statusCode);
     Object.setPrototypeOf(this, AppError.prototype);
     // Error.captureStackTrace(this, this.constructor);
   }
@@ -471,6 +486,7 @@ export const handleError = (err: Error | AppError) => {
       status: "error",
       statusCode: err.statusCode,
       message: err.message,
+      code: err.code,
     };
   }
 
@@ -478,6 +494,7 @@ export const handleError = (err: Error | AppError) => {
     status: "error",
     statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
     message: DefaultStatusMessages[HttpStatusCodes.INTERNAL_SERVER_ERROR],
+    code: getStatusCodeKey(HttpStatusCodes.INTERNAL_SERVER_ERROR),
   };
 };
 
@@ -505,6 +522,7 @@ export const globalErrorHandler = (
     status: errorResponse.status,
     statusCode: errorResponse.statusCode,
     message: errorResponse.message,
+    code: errorResponse.code,
     // ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 };
