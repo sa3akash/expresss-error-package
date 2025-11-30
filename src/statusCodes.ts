@@ -165,7 +165,7 @@ export const HttpStatusCodes = {
  * import { DefaultStatusMessages, HttpStatusCodes } from './statusCodes';
  * 
  * const message = DefaultStatusMessages[HttpStatusCodes.NOT_FOUND];
- * // Result: 'Not Found'
+ * Result: 'Not Found'
  */
 export const DefaultStatusMessages = {
   // 1xx Informational

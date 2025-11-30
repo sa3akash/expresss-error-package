@@ -32,12 +32,13 @@ bun add error-express
 
 ```javascript
 const express = require("express");
-const { globalErrorHandler, ServerError } = require("error-express");
+const { globalErrorHandler, ServerError, HttpStatusCodes } = require("error-express");
 
 const app = express();
 
 // Your routes here
 app.get("/api/users", (req, res) => {
+  throw new ServerError("Somthing Error.", HttpStatusCodes.BAD_REQUEST);  // custom message and status code
 
   res.json({ message: "success" });
 });
@@ -56,7 +57,7 @@ app.get("/api/users/:id", (req, res, next) => {
   const user = null; // Assume user not found
 
   if (!user) {
-    throw new ServerError("User not found", 404); // custom message and status code
+    throw new NotFoundError("User not found");  // custom message
   }
 
   res.json(user);
